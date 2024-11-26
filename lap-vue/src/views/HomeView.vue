@@ -1,18 +1,11 @@
 <template>
-  <hello-world />
+  <div>
+    <CardCampus />
+  </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
-
-// Components
-import HelloWorld from "../components/HelloWorld.vue";
-
-export default defineComponent({
-  name: "HomeView",
-
-  components: {
-    HelloWorld,
-  },
-});
+<script setup lang="ts">
+import CardCampus from "@/components/CardCampus.vue";
 </script>
+
+<style scoped></style>
