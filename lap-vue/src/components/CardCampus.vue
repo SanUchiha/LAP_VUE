@@ -1,34 +1,52 @@
 <template>
-  <v-card>
-    <v-card-title>{{ title }}</v-card-title>
-    <v-card-text>
-      <div v-if="campus.length === 0">Cargando campus...</div>
-      <v-list v-else>
-        <v-list-item v-for="campusItem in campus" :key="campusItem.idCampus">
-          <v-list-item-content>
-            <v-list-item-title>{{ campusItem.nombre }}</v-list-item-title>
-            <v-list-item-subtitle>{{
-              campusItem.direccion
-            }}</v-list-item-subtitle>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-card-text>
-    <v-btn @click="changeDescription">Cambiar Descripción</v-btn>
-  </v-card>
+  <div>
+    <div v-if="campus.length === 0">Cargando campus...</div>
+    <div v-else>
+      <v-card
+        v-for="campusItem in campus"
+        :key="campusItem.idCampus"
+        class="campus-card"
+      >
+        <v-card-title>{{ campusItem.nombre }}</v-card-title>
+        <v-card-subtitle>{{ campusItem.direccion }}</v-card-subtitle>
+        <v-card-text>
+          <v-img
+            :src="getCampusImage(campusItem.idCampus)"
+            alt="Imagen del campus"
+            aspect-ratio="16/9"
+          ></v-img>
+        </v-card-text>
+        <v-card-actions class="button-actions">
+          <v-btn
+            color="blue darken-1"
+            variant="tonal"
+            size="large"
+            @click="downloadInfo(campus.idCampus)"
+          >
+            Mas información
+          </v-btn>
+
+          <v-btn
+            color="green darken-1"
+            variant="tonal"
+            size="large"
+            @click="handleFormRegister()"
+          >
+            Apuntate
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { getCampus } from "@/services/campusService"; // Importa el servicio
+import { getCampus } from "@/services/campusService";
 import { Campus } from "@/Interfaces/Campus";
 
-// Estado local para los datos del campus
-const title = ref<string>("Card Campus");
-const description = ref<string>("Esta es una descripción inicial");
-const campus = ref<Campus[]>([]); // Define el estado para almacenar la lista de campus
+const campus = ref<Campus[]>([]);
 
-// Llama a la función getCampus cuando el componente se monte
 onMounted(async () => {
   try {
     const data = await getCampus();
@@ -38,16 +56,31 @@ onMounted(async () => {
   }
 });
 
-// Función para cambiar la descripción
-function changeDescription() {
-  description.value = "Descripción actualizada.";
-}
+const getCampusImage = (idCampus: number): string => {
+  return `/images/cartel_${idCampus}.jpg`;
+};
+
+const downloadInfo = (idCampus: number): string => {
+  //
+};
+
+const handleFormRegister = (idCampus: number): string => {
+  //
+};
 </script>
 
 <style scoped>
-/* Estilos adicionales */
-.v-card {
-  max-width: 500px;
-  margin: 20px;
+.campus-card {
+  margin: 20px auto;
+  max-width: 400px;
+}
+
+.v-img {
+  border-bottom: 1px solid #ccc;
+}
+
+.button-actions {
+  display: flex;
+  justify-content: space-between;
 }
 </style>
