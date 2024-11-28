@@ -40,7 +40,7 @@
                 <v-text-field
                   label="DNI Participante"
                   v-model="formData.dniparticipante"
-                  :rules="[rules.required]"
+                  :rules="[rules.required, rules.dni]"
                   required
                   type="text"
                   :error="errors.dniparticipante"
@@ -80,7 +80,7 @@
                 <v-text-field
                   label="Código postal"
                   v-model="formData.codigoPostal"
-                  :rules="[rules.required]"
+                  :rules="[rules.required, rules.codigoPostal]"
                   required
                   type="number"
                   :error="errors.codigoPostal"
@@ -174,7 +174,7 @@
                 <v-text-field
                   label="DNI Tutor"
                   v-model="formData.dnitutor"
-                  :rules="[rules.required]"
+                  :rules="[rules.required, rules.dni]"
                   required
                   type="text"
                   :error="errors.dnitutor"
@@ -359,6 +359,10 @@ const rules = {
   },
   phone: (value: string) =>
     /^\d{9}$/.test(value) || "El número de teléfono debe tener 9 dígitos.",
+  codigoPostal: (value: string) =>
+    /^\d{5}$/.test(value) || "El cósigo postal debe tener 5 dígitos.",
+  dni: (value: string) =>
+    /^[A-Za-z0-9]{9}$/.test(value) || "El DNI debe tener 9 letras o números.",
 };
 
 const errors = reactive({
