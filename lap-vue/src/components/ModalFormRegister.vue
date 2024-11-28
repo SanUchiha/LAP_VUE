@@ -386,79 +386,81 @@ const formRef = ref();
 const close = () => emit("close");
 
 const submitForm = async () => {
-  if (formRef.value) {
-    formRef.value.validate();
-
-    if (props.campus?.idCampus != undefined) {
-      isGenerating.value = true;
-      const idCampus: number = props.campus.idCampus;
-      const campus: Campus = props.campus;
-
-      let tomaMedicacion = false;
-      let alergias = false;
-      let permiteFotos = false;
-
-      if (formData.value.tomaMedicacion == true) {
-        tomaMedicacion = true;
-      }
-      if (formData.value.alergias == true) {
-        alergias = true;
-      }
-
-      if (formData.value.permiteFotos == true) {
-        permiteFotos = true;
-      }
-
-      try {
-        const request: ParticipanteDTO = {
-          nombre: formData.value.nombre!,
-          primerApellido: formData.value.primerApellido!,
-          segundoApellido: formData.value.segundoApellido,
-          dniparticipante: formData.value.dniparticipante!,
-          fechaNacimiento: formData.value.fechaNacimiento!,
-          direccionParticipante: formData.value.direccionParticipante!,
-          localidad: formData.value.localidad!,
-          codigoPostal: formData.value.codigoPostal!,
-          lesiones: formData.value.lesiones,
-          descripcionLesiones: formData.value.descripcionLesiones,
-          tomaMedicacion: tomaMedicacion,
-          descripcionMedicacion: formData.value.descripcionMedicacion,
-          alergias: alergias,
-          descripcionAlergias: formData.value.descripcionAlergias,
-          nombreTutor: formData.value.nombreTutor!,
-          primerApellidoTutor: formData.value.primerApellidoTutor!,
-          segundoApellidoTutor: formData.value.segundoApellidoTutor,
-          dnitutor: formData.value.dnitutor!,
-          telefonoPrincipal: formData.value.telefonoPrincipal!,
-          telefonoSecundario: formData.value.telefonoSecundario,
-          correoParticipante: formData.value.correoParticipante!,
-          permiteFotos: permiteFotos,
-          autorizacion: true,
-          firma: "",
-          idCampus: idCampus,
-          tallaCamiseta: formData.value.tallaCamiseta,
-          idCampusNavigation: campus,
-        };
-        console.log("data", request);
-        await createUser(request);
-        isSuccess.value = true;
-      } catch (error) {
-        isError.value = true;
-
-        console.error("Error al guardar un participante");
-      } finally {
-        isGenerating.value = false;
-      }
-    } else {
-      isError.value = true;
-      console.error(
-        "No se ha podido procesar la solicitud porque el idCampus no es válido"
-      );
-    }
-  } else {
-    isError.value = true;
-
+  if (!formRef.value) {
     console.error("Form reference is not defined");
+    return;
+  }
+  const isValid = await formRef.value.validate();
+
+  console.log(isValid);
+  if (!isValid.valid) {
+    return; // Salir del flujo si el formulario no es válido.
+  }
+
+  if (!props.campus?.idCampus) {
+    console.error("idCampus no es válido");
+    return;
+  }
+
+  if (props.campus?.idCampus != undefined) {
+    isGenerating.value = true;
+    const idCampus: number = props.campus.idCampus;
+    const campus: Campus = props.campus;
+
+    let tomaMedicacion = false;
+    let alergias = false;
+    let permiteFotos = false;
+
+    if (formData.value.tomaMedicacion == true) {
+      tomaMedicacion = true;
+    }
+    if (formData.value.alergias == true) {
+      alergias = true;
+    }
+
+    if (formData.value.permiteFotos == true) {
+      permiteFotos = true;
+    }
+
+    try {
+      const request: ParticipanteDTO = {
+        nombre: formData.value.nombre!,
+        primerApellido: formData.value.primerApellido!,
+        segundoApellido: formData.value.segundoApellido,
+        dniparticipante: formData.value.dniparticipante!,
+        fechaNacimiento: formData.value.fechaNacimiento!,
+        direccionParticipante: formData.value.direccionParticipante!,
+        localidad: formData.value.localidad!,
+        codigoPostal: formData.value.codigoPostal!,
+        lesiones: formData.value.lesiones,
+        descripcionLesiones: formData.value.descripcionLesiones,
+        tomaMedicacion: tomaMedicacion,
+        descripcionMedicacion: formData.value.descripcionMedicacion,
+        alergias: alergias,
+        descripcionAlergias: formData.value.descripcionAlergias,
+        nombreTutor: formData.value.nombreTutor!,
+        primerApellidoTutor: formData.value.primerApellidoTutor!,
+        segundoApellidoTutor: formData.value.segundoApellidoTutor,
+        dnitutor: formData.value.dnitutor!,
+        telefonoPrincipal: formData.value.telefonoPrincipal!,
+        telefonoSecundario: formData.value.telefonoSecundario,
+        correoParticipante: formData.value.correoParticipante!,
+        permiteFotos: permiteFotos,
+        autorizacion: true,
+        firma: "",
+        idCampus: idCampus,
+        tallaCamiseta: formData.value.tallaCamiseta,
+        idCampusNavigation: campus,
+      };
+      console.log("data", request);
+      await createUser(request);
+      isSuccess.value = true;
+    } catch (error) {
+      isError.value = true;
+      console.error("Error al guardar un participante");
+    } finally {
+      isGenerating.value = false;
+    }
   }
 };
 watch(
