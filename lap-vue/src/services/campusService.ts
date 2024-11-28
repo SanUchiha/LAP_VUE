@@ -13,9 +13,11 @@ export const getCampus = async (): Promise<Campus[]> => {
 };
 
 // Función para descargar la informacion
-export const getInfoCampus = async (idCampus: number): Promise<Campus[]> => {
+export const getInfoCampus = async (idCampus: number) => {
   try {
-    const response = await axiosInstance.get("campus/info/id");
+    const response = await axiosInstance.get(`campus/pdf/${idCampus}`, {
+      responseType: "blob",
+    });
     return response.data;
   } catch (error) {
     console.error("Error al obtener la info del campus:", error);

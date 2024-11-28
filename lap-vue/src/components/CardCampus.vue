@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="campus.length === 0">Cargando campus...</div>
+    <div v-if="isLoading">Cargando campus...</div>
     <div v-else>
       <v-card
         v-for="campusItem in campus"
@@ -21,7 +21,7 @@
             color="blue darken-1"
             variant="tonal"
             size="large"
-            @click="downloadInfo(campus.idCampus)"
+            @click="downloadInfo(campusItem.idCampus, campusItem.nombre)"
           >
             Mas información
           </v-btn>
@@ -30,29 +30,44 @@
             color="green darken-1"
             variant="tonal"
             size="large"
-            @click="handleFormRegister()"
+            @click="openRegisterModal(campusItem)"
           >
             Apuntate
           </v-btn>
         </v-card-actions>
       </v-card>
     </div>
+
+    <ModalFormRegister
+      :isOpen="isModalOpen"
+      :campus="selectedCampus"
+      @close="closeRegisterModal"
+      @register="handleRegister"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { getCampus } from "@/services/campusService";
+import { getCampus, getInfoCampus } from "@/services/campusService";
 import { Campus } from "@/Interfaces/Campus";
+import ModalFormRegister from "./ModalFormRegister.vue";
 
 const campus = ref<Campus[]>([]);
+const isLoading = ref<boolean>(false);
+
+const isModalOpen = ref<boolean>(false);
+const selectedCampus = ref<Campus>();
 
 onMounted(async () => {
   try {
+    isLoading.value = true;
     const data = await getCampus();
     campus.value = data; // Asigna los datos obtenidos a la variable 'campus'
   } catch (error) {
     console.error("Error al cargar los campus", error);
+  } finally {
+    isLoading.value = false;
   }
 });
 
@@ -60,12 +75,36 @@ const getCampusImage = (idCampus: number): string => {
   return `/images/cartel_${idCampus}.jpg`;
 };
 
-const downloadInfo = (idCampus: number): string => {
-  //
+const downloadInfo = async (idCampus: number, nombreCampus: string) => {
+  try {
+    const pdfBlob = await getInfoCampus(idCampus);
+    const url = URL.createObjectURL(pdfBlob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${nombreCampus}.pdf`;
+    link.click();
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Error al descargar la información del campus", error);
+  }
 };
 
-const handleFormRegister = (idCampus: number): string => {
-  //
+const openRegisterModal = (campus: Campus) => {
+  selectedCampus.value = campus;
+  isModalOpen.value = true;
+};
+
+const closeRegisterModal = () => {
+  isModalOpen.value = false;
+};
+
+const handleRegister = (userData: {
+  nombre: string;
+  email: string;
+  telefono: string;
+}) => {
+  console.log("Datos registrados:", userData);
+  // Aquí puedes enviar los datos al backend o realizar otra acción
 };
 </script>
 
