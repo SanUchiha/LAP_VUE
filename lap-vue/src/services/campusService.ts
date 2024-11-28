@@ -1,4 +1,4 @@
-import { Campus, Participante } from "@/Interfaces/Campus";
+import { Campus, Participante, ParticipanteDTO } from "@/Interfaces/Campus";
 import axiosInstance from "./axiosService";
 
 // Función para obtener los usuarios
@@ -26,7 +26,9 @@ export const getInfoCampus = async (idCampus: number) => {
 };
 
 // Función para crear un usuario
-export const createUser = async (user: Participante): Promise<Participante> => {
+export const createUser = async (
+  user: ParticipanteDTO
+): Promise<Participante> => {
   try {
     const response = await axiosInstance.post("participantes", user);
     return response.data;

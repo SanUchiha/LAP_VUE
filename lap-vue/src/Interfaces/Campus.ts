@@ -66,9 +66,9 @@ export interface ParticipanteDTO {
   codigoPostal: string;
   lesiones?: string; // Opcional
   descripcionLesiones?: string; // Opcional
-  tomaMedicacion: string;
+  tomaMedicacion: boolean;
   descripcionMedicacion?: string; // Opcional
-  alergias: string;
+  alergias: boolean;
   descripcionAlergias?: string; // Opcional
   nombreTutor: string;
   primerApellidoTutor: string;
@@ -82,4 +82,5 @@ export interface ParticipanteDTO {
   firma?: string; // Opcional
   idCampus: number;
   tallaCamiseta?: string; // Opcional
+  idCampusNavigation: Campus;
 }

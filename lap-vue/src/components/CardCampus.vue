@@ -42,7 +42,6 @@
       :isOpen="isModalOpen"
       :campus="selectedCampus"
       @close="closeRegisterModal"
-      @register="handleRegister"
     />
   </div>
 </template>
@@ -96,15 +95,6 @@ const openRegisterModal = (campus: Campus) => {
 
 const closeRegisterModal = () => {
   isModalOpen.value = false;
-};
-
-const handleRegister = (userData: {
-  nombre: string;
-  email: string;
-  telefono: string;
-}) => {
-  console.log("Datos registrados:", userData);
-  // Aquí puedes enviar los datos al backend o realizar otra acción
 };
 </script>
 
