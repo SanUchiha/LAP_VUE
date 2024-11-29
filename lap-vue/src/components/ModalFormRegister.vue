@@ -118,7 +118,7 @@
                   <v-radio label="NO" value="false"></v-radio>
                 </v-radio-group>
                 <v-text-field
-                  v-if="formData.tomaMedicacion == true"
+                  v-if="formData.tomaMedicacion === 'true'"
                   label="Describa la medicación"
                   v-model="formData.descripcionMedicacion"
                   type="text"
@@ -127,7 +127,7 @@
               <v-col cols="12" md="6">
                 <v-radio-group
                   inline
-                  label="¿Tiene alergias?"
+                  label="¿Tiene alergias y/o intolerancias?"
                   v-model="formData.alergias"
                   :rules="[rules.required]"
                   required
@@ -137,7 +137,7 @@
                   <v-radio label="NO" value="false"></v-radio>
                 </v-radio-group>
                 <v-text-field
-                  v-if="formData.alergias == true"
+                  v-if="formData.alergias === 'true'"
                   label="Describa las alergias"
                   v-model="formData.descripcionAlergias"
                   type="text"
@@ -210,7 +210,7 @@
               <v-col cols="12" md="6">
                 <v-radio-group
                   inline
-                  label="¿Permite fotos?"
+                  label="¿Permite que se realizen fotos y/o vídeos para el uso en las redes sociales?"
                   v-model="formData.permiteFotos"
                   :rules="[rules.required]"
                   required
@@ -224,7 +224,7 @@
               <v-col cols="12" md="6">
                 <v-select
                   label="Talla de camiseta"
-                  :items="['6', '8', '10', 'S', 'M', 'L', 'XL']"
+                  :items="['6', '8', '10', '12', 'S', 'M', 'L', 'XL']"
                   v-model="formData.tallaCamiseta"
                   :rules="[rules.required]"
                   required
@@ -306,10 +306,29 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+
+  <!-- Modal error DNI -->
+  <v-dialog v-model="isErrorDNI" max-width="400">
+    <v-card>
+      <v-card-title class="text-center"> UPS.. </v-card-title>
+
+      <v-divider class="my-3"></v-divider>
+
+      <v-card-text class="text-center"
+        >Ya existe un participante inscrito con este DNI</v-card-text
+      >
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="blue darken-1" variant="outlined" @click="closeIsError"
+          >OK</v-btn
+        >
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
-import { ParticipanteDTO } from "@/Interfaces/Campus";
+import { ParticipanteDTO, ParticipanteRequestDTO } from "@/Interfaces/Campus";
 import { ref, watch, defineProps, defineEmits, reactive, PropType } from "vue";
 import { Campus } from "@/Interfaces/Campus";
 import { createUser } from "@/services/campusService";
@@ -335,18 +354,20 @@ const closeIsSuccess = () => {
 };
 const closeIsError = () => {
   isError.value = false;
+  isErrorDNI.value = false;
 };
 
 const isGenerating = ref<boolean>(false);
 const isSuccess = ref<boolean>(false);
 const isError = ref<boolean>(false);
+const isErrorDNI = ref<boolean>(false);
 
 const formData = ref<Partial<ParticipanteDTO>>({
   idCampus: props.campus?.idCampus ?? 0,
 });
 
 const rules = {
-  required: (value: any) => !!value || "Este campo es obligatorio.",
+  required: (value: unknown) => !!value || "Este campo es obligatorio.",
   email: (value: string | null) =>
     /.+@.+\..+/.test(value || "") || "Formato de correo inválido.",
   validDate: (value: string | null) => {
@@ -396,9 +417,8 @@ const submitForm = async () => {
   }
   const isValid = await formRef.value.validate();
 
-  console.log(isValid);
   if (!isValid.valid) {
-    return; // Salir del flujo si el formulario no es válido.
+    return;
   }
 
   if (!props.campus?.idCampus) {
@@ -415,19 +435,17 @@ const submitForm = async () => {
     let alergias = false;
     let permiteFotos = false;
 
-    if (formData.value.tomaMedicacion == true) {
-      tomaMedicacion = true;
-    }
-    if (formData.value.alergias == true) {
-      alergias = true;
-    }
+    if (formData.value.tomaMedicacion == "true") tomaMedicacion = true;
+    else tomaMedicacion = false;
 
-    if (formData.value.permiteFotos == true) {
-      permiteFotos = true;
-    }
+    if (formData.value.alergias == "true") alergias = true;
+    else alergias = false;
+
+    if (formData.value.permiteFotos == true) permiteFotos = true;
+    else permiteFotos = false;
 
     try {
-      const request: ParticipanteDTO = {
+      const request: ParticipanteRequestDTO = {
         nombre: formData.value.nombre!,
         primerApellido: formData.value.primerApellido!,
         segundoApellido: formData.value.segundoApellido,
@@ -456,17 +474,25 @@ const submitForm = async () => {
         tallaCamiseta: formData.value.tallaCamiseta,
         idCampusNavigation: campus,
       };
-      console.log("data", request);
       await createUser(request);
       isSuccess.value = true;
     } catch (error) {
-      isError.value = true;
-      console.error("Error al guardar un participante");
+      if (
+        error instanceof Error &&
+        error.message === "Ya existe un participante con los mismos datos."
+      ) {
+        console.error("Error: El participante ya existe.");
+        isErrorDNI.value = true;
+      } else {
+        isError.value = true;
+        console.error("Error al guardar un participante", error);
+      }
     } finally {
       isGenerating.value = false;
     }
   }
 };
+
 watch(
   () => props.isOpen,
   (newValue) => {
@@ -475,4 +501,42 @@ watch(
 );
 </script>
 
-<style scoped></style>
+<style scoped>
+.remove-btn {
+  background-color: transparent;
+  color: red;
+  margin-left: 16px; /* Espacio entre el texto y el botón */
+  padding: 0;
+  min-width: auto;
+  display: flex;
+  align-items: center;
+}
+
+.remove-btn .v-icon {
+  font-size: 18px; /* Tamaño del ícono */
+}
+
+.emparejamientos-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.emparejamiento-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.emparejamiento-text {
+  flex-grow: 1;
+}
+
+.progress-card {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+}
+</style>

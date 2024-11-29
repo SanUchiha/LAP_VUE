@@ -20,10 +20,9 @@ export interface Campus {
   formaPagoUno: string;
   formaPagoDos?: string; // Opcional
   formaPagoTres?: string; // Opcional
-  participantes: Participante[]; // Asumo que tienes una interfaz para "Participante"
+  participantes?: Participante[]; // Asumo que tienes una interfaz para "Participante"
+  plazasRestantes?: number;
 }
-
-// src/interfaces/Participante.ts
 
 export interface Participante {
   idParticipante: number;
@@ -56,6 +55,36 @@ export interface Participante {
 }
 
 export interface ParticipanteDTO {
+  nombre: string;
+  primerApellido: string;
+  segundoApellido?: string; // Opcional
+  dniparticipante: string;
+  fechaNacimiento: string; // Usamos string para la fecha, puedes convertirlo en Date si lo prefieres
+  direccionParticipante: string;
+  localidad: string;
+  codigoPostal: string;
+  lesiones?: string; // Opcional
+  descripcionLesiones?: string; // Opcional
+  tomaMedicacion: string;
+  descripcionMedicacion?: string; // Opcional
+  alergias: string;
+  descripcionAlergias?: string; // Opcional
+  nombreTutor: string;
+  primerApellidoTutor: string;
+  segundoApellidoTutor?: string; // Opcional
+  dnitutor: string;
+  telefonoPrincipal: string;
+  telefonoSecundario?: string; // Opcional
+  correoParticipante: string;
+  permiteFotos: boolean;
+  autorizacion: boolean;
+  firma?: string; // Opcional
+  idCampus: number;
+  tallaCamiseta?: string; // Opcional
+  idCampusNavigation: Campus;
+}
+
+export interface ParticipanteRequestDTO {
   nombre: string;
   primerApellido: string;
   segundoApellido?: string; // Opcional

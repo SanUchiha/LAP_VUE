@@ -9,12 +9,17 @@
       >
         <v-card-title>{{ campusItem.nombre }}</v-card-title>
         <v-card-subtitle>{{ campusItem.direccion }}</v-card-subtitle>
+
         <v-card-text>
           <v-img
             :src="getCampusImage(campusItem.idCampus)"
             alt="Imagen del campus"
             aspect-ratio="16/9"
           ></v-img>
+        </v-card-text>
+
+        <v-card-text class="plazas-restantes">
+          Plazas restantes: <strong>{{ campusItem.plazasRestantes }}</strong>
         </v-card-text>
         <v-card-actions class="button-actions">
           <v-btn
@@ -32,7 +37,7 @@
             size="large"
             @click="openRegisterModal(campusItem)"
           >
-            Apuntate
+            Apúntate
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -48,7 +53,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { getCampus, getInfoCampus } from "@/services/campusService";
+import {
+  getCampus,
+  getInfoCampus,
+  getParticipantesByCampus,
+} from "@/services/campusService";
 import { Campus } from "@/Interfaces/Campus";
 import ModalFormRegister from "./ModalFormRegister.vue";
 
@@ -62,7 +71,14 @@ onMounted(async () => {
   try {
     isLoading.value = true;
     const data = await getCampus();
-    campus.value = data; // Asigna los datos obtenidos a la variable 'campus'
+    campus.value = data;
+
+    for (const campusItem of campus.value) {
+      const participantes = await getParticipantesByCampus(campusItem.idCampus);
+      campusItem.participantes = participantes;
+      campusItem.plazasRestantes =
+        campusItem.aforoMaximo - campusItem.participantes.length;
+    }
   } catch (error) {
     console.error("Error al cargar los campus", error);
   } finally {
@@ -111,5 +127,13 @@ const closeRegisterModal = () => {
 .button-actions {
   display: flex;
   justify-content: space-between;
+}
+
+/* Estilo para plazas restantes */
+.plazas-restantes {
+  text-align: center;
+  font-size: 18px;
+  color: goldenrod; /* Dorado */
+  font-weight: bold;
 }
 </style>
