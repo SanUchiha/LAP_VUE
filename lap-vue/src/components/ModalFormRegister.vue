@@ -258,30 +258,49 @@
 
   <!-- Modal de progreso circular -->
   <v-dialog v-model="isGenerating" hide-overlay persistent>
-    <v-card class="progress-card">
+    <v-card class="loading-container">
       <v-progress-circular
         indeterminate
-        color="primary"
-        size="70"
+        color="blue darken-1"
+        size="64"
+        class="mb-3"
       ></v-progress-circular>
     </v-card>
   </v-dialog>
 
   <!-- Modal success -->
-  <v-dialog v-model="isSuccess" max-width="400">
+  <v-dialog v-model="isSuccess" max-width="500">
     <v-card>
-      <v-card-title class="text-center"> ¡¡ENHORABUENA!! </v-card-title>
+      <v-card-title class="text-center">¡¡ENHORABUENA!!</v-card-title>
 
-      <v-divider class="my-3"></v-divider>
+      <v-divider></v-divider>
 
-      <v-card-text class="text-center"
-        >El registro se ha realizaco con exito</v-card-text
-      >
+      <v-card-text class="text-center">
+        El registro se ha realizado con éxito.
+      </v-card-text>
+
+      <v-card-text>
+        <h3 class="text-h6 text-center">Formas de pago:</h3>
+        <ul>
+          <li>
+            <strong>Transferencia bancaria</strong>:
+            <code>ES7014910001223000108983</code> poniendo como concepto
+            <em>"Campus Beniajan - Nombre del niñ@ -"</em>.
+          </li>
+          <li>
+            <strong>En efectivo</strong> a Sánchez en el campo de fútbol de
+            Beniajan, los lunes y los miércoles de 17:30 a 20:00.
+          </li>
+        </ul>
+      </v-card-text>
+
+      <v-divider></v-divider>
+
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" variant="outlined" @click="closeIsSuccess"
-          >OK</v-btn
-        >
+        <v-btn color="blue darken-1" variant="outlined" @click="closeIsSuccess">
+          ENTENDIDO
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -502,6 +521,15 @@ watch(
 </script>
 
 <style scoped>
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh; /* Asegura que el spinner esté centrado verticalmente */
+  text-align: center;
+}
+
 .remove-btn {
   background-color: transparent;
   color: red;
@@ -529,14 +557,5 @@ watch(
 
 .emparejamiento-text {
   flex-grow: 1;
-}
-
-.progress-card {
-  width: 200px;
-  height: 200px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: auto;
 }
 </style>

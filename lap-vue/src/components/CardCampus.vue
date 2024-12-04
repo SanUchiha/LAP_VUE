@@ -1,6 +1,14 @@
 <template>
   <div>
-    <div v-if="isLoading">Cargando campus...</div>
+    <div v-if="isLoading" class="loading-container">
+      <v-progress-circular
+        indeterminate
+        color="blue darken-1"
+        size="64"
+        class="mb-3"
+      ></v-progress-circular>
+      <div>Cargando campus...</div>
+    </div>
     <div v-else>
       <v-card
         v-for="campusItem in campus"
@@ -115,6 +123,14 @@ const closeRegisterModal = () => {
 </script>
 
 <style scoped>
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh; /* Asegura que el spinner esté centrado verticalmente */
+  text-align: center;
+}
 .campus-card {
   margin: 20px auto;
   max-width: 400px;
