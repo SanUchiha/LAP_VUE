@@ -57,6 +57,19 @@
       @close="closeRegisterModal"
     />
   </div>
+
+  <v-snackbar
+    :timeout="timeout"
+    v-model="showSBError"
+    color="red-darken-1"
+    eager
+  >
+    {{ messageSB }}
+  </v-snackbar>
+
+  <v-snackbar :timeout="timeout" v-model="showSB" color="indigo" eager>
+    {{ messageSB }}
+  </v-snackbar>
 </template>
 
 <script setup lang="ts">
@@ -68,12 +81,19 @@ import {
 } from "@/services/campusService";
 import { Campus } from "@/Interfaces/Campus";
 import ModalFormRegister from "./ModalFormRegister.vue";
+import axios from "axios";
 
 const campus = ref<Campus[]>([]);
 const isLoading = ref<boolean>(false);
 
 const isModalOpen = ref<boolean>(false);
 const selectedCampus = ref<Campus>();
+
+const timeout = ref<number>(3000);
+const showSB = ref<boolean>(false);
+const showSBError = ref<boolean>(false);
+
+const messageSB = ref<string>("");
 
 onMounted(async () => {
   try {
@@ -98,17 +118,45 @@ const getCampusImage = (idCampus: number): string => {
   return `/images/cartel_${idCampus}.jpg`;
 };
 
+const handlerSBSuccess = () => {
+  messageSB.value = "📄 Descarga completada correctamente";
+  showSB.value = true;
+};
+
+const handlerSBError = (message: string) => {
+  messageSB.value = message;
+  showSBError.value = true;
+};
+
 const downloadInfo = async (idCampus: number, nombreCampus: string) => {
   try {
     const pdfBlob = await getInfoCampus(idCampus);
+    //console.log(pdfBlob);
     const url = URL.createObjectURL(pdfBlob);
     const link = document.createElement("a");
     link.href = url;
     link.download = `${nombreCampus}.pdf`;
     link.click();
     URL.revokeObjectURL(url);
+    handlerSBSuccess();
   } catch (error) {
-    console.error("Error al descargar la información del campus", error);
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 404) {
+        console.warn(
+          `📄 No se encontró información para el campus con ID ${idCampus}`
+        );
+        handlerSBError("⚠️ No se encontró el archivo PDF para este campus.");
+      } else {
+        console.error(
+          `❌ Error HTTP (${error.response?.status}):`,
+          error.response?.data
+        );
+        handlerSBError("⚠️ No se encontró el archivo PDF para este campus.");
+      }
+    } else {
+      console.error("❌ Error inesperado:", error);
+      handlerSBError("⚠️ No se encontró el archivo PDF para este campus.");
+    }
   }
 };
 
