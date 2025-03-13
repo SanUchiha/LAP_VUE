@@ -35,6 +35,7 @@
             variant="tonal"
             size="large"
             @click="downloadInfo(campusItem.idCampus, campusItem.nombre)"
+            :disabled="true"
           >
             Mas información
           </v-btn>
@@ -101,6 +102,10 @@ onMounted(async () => {
     const data = await getCampus();
     campus.value = data;
 
+    campus.value = campus.value.filter(
+      (c) => new Date(c.diaInicio) > new Date()
+    );
+
     for (const campusItem of campus.value) {
       const participantes = await getParticipantesByCampus(campusItem.idCampus);
       campusItem.participantes = participantes;
@@ -145,17 +150,17 @@ const downloadInfo = async (idCampus: number, nombreCampus: string) => {
         console.warn(
           `📄 No se encontró información para el campus con ID ${idCampus}`
         );
-        handlerSBError("⚠️ No se encontró el archivo PDF para este campus.");
+        handlerSBError("⚠️ Aún no está disponible la información.");
       } else {
         console.error(
           `❌ Error HTTP (${error.response?.status}):`,
           error.response?.data
         );
-        handlerSBError("⚠️ No se encontró el archivo PDF para este campus.");
+        handlerSBError("⚠️ Aún no está disponible la información.");
       }
     } else {
       console.error("❌ Error inesperado:", error);
-      handlerSBError("⚠️ No se encontró el archivo PDF para este campus.");
+      handlerSBError("⚠️ Aún no está disponible la información.");
     }
   }
 };

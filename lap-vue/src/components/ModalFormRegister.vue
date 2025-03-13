@@ -210,7 +210,7 @@
               <v-col cols="12" md="6">
                 <v-radio-group
                   inline
-                  label="¿Permite que se realizen fotos y/o vídeos para el uso en las redes sociales?"
+                  label="¿Fotos solo para redes sociales?"
                   v-model="formData.permiteFotos"
                   :rules="[rules.required]"
                   required
