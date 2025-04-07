@@ -44,6 +44,7 @@
             color="green darken-1"
             variant="tonal"
             size="large"
+            :disabled="true"
             @click="openRegisterModal(campusItem)"
           >
             Apúntate
